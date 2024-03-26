@@ -1,6 +1,5 @@
-import { Table, TableColumnsType } from 'antd';
-import { useState } from 'react';
-import { Resizable, ResizeCallbackData } from 'react-resizable';
+import { TableColumnsType } from 'antd';
+import ResizableColumnTable from './components/ResizableColumnTable';
 
 const data: DataType[] = [
     {
@@ -35,7 +34,7 @@ interface DataType {
 }
 
 const App = () => {
-    const [columns, setColumns] = useState<TableColumnsType<DataType>>([
+    const columns: TableColumnsType<DataType> = [
         {
             title: 'Date',
             dataIndex: 'date',
@@ -62,76 +61,9 @@ const App = () => {
             key: 'action',
             render: () => <a>Delete</a>,
         },
-    ]);
+    ];
 
-    const handleResize =
-        (index: number) =>
-        (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-            const newColumns = [...columns];
-            newColumns[index] = {
-                ...newColumns[index],
-                width: size.width,
-            };
-            setColumns(newColumns);
-        };
-
-    const mergedColumns = columns.map<TableColumnsType<DataType>[number]>(
-        (col, index) => ({
-            ...col,
-            onHeaderCell: (column: TableColumnsType<DataType>[number]) => ({
-                width: column.width,
-                onResize: handleResize(index) as React.ReactEventHandler<any>,
-            }),
-        })
-    );
-
-    return (
-        <Table
-            bordered
-            components={{
-                header: {
-                    cell: ResizableTitle,
-                },
-            }}
-            dataSource={data}
-            columns={mergedColumns}
-        />
-    );
-};
-
-const ResizableTitle = (
-    props: React.HTMLAttributes<any> & {
-        onResize: (
-            e: React.SyntheticEvent<Element>,
-            data: ResizeCallbackData
-        ) => void;
-        width: number;
-    }
-) => {
-    const { onResize, width, ...restProps } = props;
-
-    if (!width) {
-        return <th {...restProps} />;
-    }
-
-    return (
-        <Resizable
-            width={width}
-            height={0}
-            handle={
-                <span
-                    className="react-resizable-handle"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                    }}
-                />
-            }
-            onResize={onResize}
-            draggableOpts={{ enableUserSelectHack: false }}
-        >
-            <th {...restProps} />
-        </Resizable>
-    );
+    return <ResizableColumnTable dataSource={data} columns={columns} />;
 };
 
 export default App;
